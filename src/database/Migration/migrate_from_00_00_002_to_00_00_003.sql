@@ -26,7 +26,8 @@ BEGIN
 			 [UserName] nvarchar(128) NOT NULL
 		);
 
- 
+		INSERT Version (major,minor,revision) VALUES (0,0,3); 
+
         IF @localTran = 1 AND XACT_STATE() = 1
             COMMIT TRAN LocalTran
  

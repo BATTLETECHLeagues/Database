@@ -30,7 +30,7 @@ BEGIN
 			 CONSTRAINT versionCK UNIQUE(major,minor,revision)  
 		);
 
-		INSERT version (major,minor,revision) VALUES (0,0,2); 
+		INSERT Version (major,minor,revision) VALUES (0,0,2); 
  
         IF @localTran = 1 AND XACT_STATE() = 1
             COMMIT TRAN LocalTran

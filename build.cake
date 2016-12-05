@@ -10,7 +10,8 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var devDatabaseConnectionString = Argument("devConnectionString",@"Server=(localdb)\MSSQLLocalDB;Database=BCAPIDatabase_Dev;Trusted_Connection=True;");
+var databaseConnectionString = Argument("devConnectionString",@"Server=(localdb)\MSSQLLocalDB;Database=BCAPIDatabase_Dev;Trusted_Connection=True;");
+var releasePassword = Argument("releasePassword", "Password Not Set");
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -23,30 +24,28 @@ var buildDir = Directory("./src/Example/bin") + Directory(configuration);
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
-Task("Clean")
+
+Task("Deploy")
+    .IsDependentOn("Set-Production-DatabaseString")
+    .IsDependentOn("Migrate-Database")
     .Does(() =>
 {
-    CleanDirectory(buildDir);
 });
 
-Task("Restore-NuGet-Packages")
-    .IsDependentOn("Clean")
-    .Does(() =>
-{
-    NuGetRestore("./src/Example.sln");
-});
-
-Task("Build")
-    .IsDependentOn("Restore-NuGet-Packages")
-    .Does(() =>
-{
+Task("Set-Production-DatabaseString")
    
+    .Does(() =>
+{
+    databaseConnectionString =  string.Format("Server=tcp:battletechleagues.database.windows.net,1433;Initial Catalog=BATTLETECHLeagues;Persist Security Info=False;User ID=leagueadmin;Password={0};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",releasePassword);
+    
+    Information(databaseConnectionString);
 });
+
 
 Task("Create-Dev-Database")
     .Does(() =>
 {
-    using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(devDatabaseConnectionString))
+    using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(databaseConnectionString))
     {
         Microsoft.SqlServer.Management.Common.ServerConnection svrConnection = new  Microsoft.SqlServer.Management.Common.ServerConnection(sqlConnection);
         Microsoft.SqlServer.Management.Smo.Server server = new Microsoft.SqlServer.Management.Smo.Server(svrConnection);
@@ -76,7 +75,7 @@ Task("Migrate-Database")
     var files = GetFiles("./src/database/migration/*.sql");
     foreach(var file in files)
     {
-        using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(devDatabaseConnectionString))
+        using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(databaseConnectionString))
         {
             Microsoft.SqlServer.Management.Common.ServerConnection svrConnection = new  Microsoft.SqlServer.Management.Common.ServerConnection(sqlConnection);
             Microsoft.SqlServer.Management.Smo.Server server = new Microsoft.SqlServer.Management.Smo.Server(svrConnection);

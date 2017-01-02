@@ -11,6 +11,7 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var databaseConnectionString = Argument("devConnectionString",@"Server=(localdb)\MSSQLLocalDB;Database=BCAPIDatabase_Dev;Trusted_Connection=True;");
+var createDatabaseConnectionString = Argument("devConnectionString",@"Server=(localdb)\MSSQLLocalDB;Database=master;Trusted_Connection=True;");
 var releasePassword = Argument("releasePassword", "Password Not Set");
 
 //////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ Task("Set-Production-DatabaseString")
 Task("Create-Dev-Database")
     .Does(() =>
 {
-    using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(databaseConnectionString))
+    using (System.Data.SqlClient.SqlConnection sqlConnection = new   System.Data.SqlClient.SqlConnection(createDatabaseConnectionString))
     {
         Microsoft.SqlServer.Management.Common.ServerConnection svrConnection = new  Microsoft.SqlServer.Management.Common.ServerConnection(sqlConnection);
         Microsoft.SqlServer.Management.Smo.Server server = new Microsoft.SqlServer.Management.Smo.Server(svrConnection);
@@ -62,6 +63,11 @@ Task("Create-Dev-Database")
             int[] result = server.ConnectionContext.ExecuteNonQuery(scl, Microsoft.SqlServer.Management.Common.ExecutionTypes.ContinueOnError);
             // Now check the result array to find any possible errors??
         }
+		catch (Exception e)
+		{
+            Console.WriteLine(e.ToString());         
+		
+		}
         finally
         {
 

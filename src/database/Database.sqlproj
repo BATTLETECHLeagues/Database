@@ -64,5 +64,6 @@
     <Build Include="Migration\migrate_from_00_00_001_to_00_00_002.sql" />
     <Build Include="Create\CreateDevDatabase.sql" />
     <Build Include="Migration\migrate_from_00_00_002_to_00_00_003.sql" />
+    <Build Include="Migration\migrate_from_00_00_003_to_00_00_004.sql" />
   </ItemGroup>
 </Project>
